@@ -3,14 +3,12 @@ import { Col, Row } from "antd";
 import React from "react";
 import FormInput from "../Forms/FormInput";
 import FormSelectField from "../Forms/FormSelectField";
-import {
-  acDepartmentOptions,
-  acSemesterOptions,
-  departmentOptions,
-  facultyOptions,
-  genderOptions,
-} from "@/constants/global";
+
 import UploadImage from "../ui/UploadImage";
+import ACDepartmentField from "../Forms/ACDepartmentField";
+import ACFacultyField from "../Forms/ACFacultyField";
+import ACSemesterField from "../Forms/ACSemesterField";
+import { genderOptions } from "@/constants/global";
 
 const StudentInfo = () => {
   return (
@@ -62,30 +60,21 @@ const StudentInfo = () => {
           </Col>
 
           <Col className="gutter-row" span={8} style={{ marginBottom: "10px" }}>
-            <FormSelectField
+            <ACDepartmentField
               name="student.academicDepartment"
-              size="large"
-              options={acDepartmentOptions}
               label="Academic Department"
-              placeholder="Select"
-            />
+            ></ACDepartmentField>
           </Col>
           <Col className="gutter-row" span={8} style={{ marginBottom: "10px" }}>
-            <FormSelectField
+            <ACFacultyField
               name="student.academicFaculty"
-              size="large"
-              options={facultyOptions}
               label="Academic Faculty"
-              placeholder="Select"
-            />
+            ></ACFacultyField>
           </Col>
           <Col className="gutter-row" span={8} style={{ marginBottom: "10px" }}>
-            <FormSelectField
+            <ACSemesterField
               name="student.academicSemester"
-              size="large"
-              options={acSemesterOptions}
               label="Academic Semester"
-              placeholder="Select"
             />
           </Col>
           <Col className="gutter-row" span={8} style={{ marginBottom: "10px" }}>
@@ -98,7 +87,7 @@ const StudentInfo = () => {
             />
           </Col>
           <Col className="gutter-row" span={8} style={{ marginBottom: "10px" }}>
-            <UploadImage></UploadImage>
+            <UploadImage name="file"></UploadImage>
           </Col>
         </Row>
       </div>

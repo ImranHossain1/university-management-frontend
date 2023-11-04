@@ -73,7 +73,7 @@ const StudentBasicInfo = () => {
             style={{ marginBottom: "10px" }}
           >
             <FormSelectField
-              name="student.gender"
+              name="student.bloodGroup"
               size="large"
               options={bloodGroupOptions}
               label="Blood Group"

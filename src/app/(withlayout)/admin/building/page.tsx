@@ -1,54 +1,63 @@
 "use client";
-import UMBreadCrumb from "@/components/ui/UMBreadCrumb";
-import UMTable from "@/components/ui/UMTable";
-import {
-  useDeleteDepartmentMutation,
-  useDepartmentsQuery,
-} from "@/redux/api/departmentApi";
-import { Button, Input, message } from "antd";
-import Link from "next/link";
-import { useState } from "react";
-import dayjs from "dayjs";
 import {
   DeleteOutlined,
   EditOutlined,
   ReloadOutlined,
 } from "@ant-design/icons";
+import UMBreadCrumb from "@/components/ui/UMBreadCrumb";
+import UMTable from "@/components/ui/UMTable";
+import { Button, Input, message } from "antd";
+import Link from "next/link";
+import { useState } from "react";
 import ActionBar from "@/components/ui/ActionBar";
 import { useDebounced } from "@/redux/hooks";
-const ManageDepartmentPage = () => {
+import dayjs from "dayjs";
+import {
+  useBuildingsQuery,
+  useDeleteBuildingMutation,
+} from "@/redux/api/buildingApi";
+
+const ManageBuildingPage = () => {
   const query: Record<string, any> = {};
-  const [size, setSize] = useState<number>(10);
+
   const [page, setPage] = useState<number>(1);
+  const [size, setSize] = useState<number>(10);
   const [sortBy, setSortBy] = useState<string>("");
   const [sortOrder, setSortOrder] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [deleteBuilding] = useDeleteBuildingMutation();
+
   query["limit"] = size;
   query["page"] = page;
   query["sortBy"] = sortBy;
   query["sortOrder"] = sortOrder;
+  // query["searchTerm"] = searchTerm;
 
   const debouncedTerm = useDebounced({
     searchQuery: searchTerm,
     delay: 600,
   });
+
   if (!!debouncedTerm) {
-    query["searchTerm"] = searchTerm;
+    query["searchTerm"] = debouncedTerm;
   }
-  const { data, isLoading } = useDepartmentsQuery({ ...query });
-  const departments = data?.departments;
+  const { data, isLoading } = useBuildingsQuery({ ...query });
+
+  const buildings = data?.buildings;
   const meta = data?.meta;
-  const [deleteDepartment] = useDeleteDepartmentMutation();
-  console.log(departments);
+
   const deleteHandler = async (id: string) => {
     message.loading("Deleting.....");
     try {
-      await deleteDepartment(id);
-      message.success("Department Delete Successfully");
+      //   console.log(data);
+      await deleteBuilding(id);
+      message.success("Building Deleted successfully");
     } catch (err: any) {
+      //   console.error(err.message);
       message.error(err.message);
     }
   };
+
   const columns = [
     {
       title: "Title",
@@ -57,19 +66,24 @@ const ManageDepartmentPage = () => {
     {
       title: "CreatedAt",
       dataIndex: "createdAt",
-      render: function (date: any) {
-        return date && dayjs(date).format("MMM D, YYYY hh:mm A");
+      render: function (data: any) {
+        return data && dayjs(data).format("MMM D, YYYY hh:mm A");
       },
       sorter: true,
-      // sorter: (a: any, b: any) => b.age - a.age,
     },
     {
       title: "Action",
       render: function (data: any) {
         return (
           <>
-            <Link href={`/super_admin/department/edit/${data?.id}`}>
-              <Button type="primary" style={{ margin: "0 5px" }}>
+            <Link href={`/admin/building/edit/${data?.id}`}>
+              <Button
+                style={{
+                  margin: "0px 5px",
+                }}
+                onClick={() => console.log(data)}
+                type="primary"
+              >
                 <EditOutlined />
               </Button>
             </Link>
@@ -87,13 +101,13 @@ const ManageDepartmentPage = () => {
   ];
 
   const onPaginationChange = (page: number, pageSize: number) => {
-    console.log("page", page, "pageSize", pageSize);
+    console.log("Page:", page, "PageSize:", pageSize);
     setPage(page);
     setSize(pageSize);
   };
-
   const onTableChange = (pagination: any, filter: any, sorter: any) => {
     const { order, field } = sorter;
+    // console.log(order, field);
     setSortBy(field as string);
     setSortOrder(order === "ascend" ? "asc" : "desc");
   };
@@ -103,55 +117,59 @@ const ManageDepartmentPage = () => {
     setSortOrder("");
     setSearchTerm("");
   };
+
   return (
     <div>
       <UMBreadCrumb
         items={[
           {
-            label: "super_admin",
-            link: "/super_admin",
+            label: "admin",
+            link: "/admin",
           },
         ]}
       />
 
-      <ActionBar title="Department List">
+      <ActionBar title="Building List">
         <Input
           type="text"
           size="large"
-          placeholder="Search...."
-          style={{ width: "20%" }}
+          placeholder="Search..."
+          style={{
+            width: "20%",
+          }}
           onChange={(e) => {
             setSearchTerm(e.target.value);
           }}
-        ></Input>
+        />
         <div>
-          <Link href="/super_admin/department/create">
-            <Button type="primary">Create Department</Button>
+          <Link href="/admin/building/create">
+            <Button type="primary">Create</Button>
           </Link>
           {(!!sortBy || !!sortOrder || !!searchTerm) && (
             <Button
+              onClick={resetFilters}
               type="primary"
               style={{ margin: "0px 5px" }}
-              onClick={resetFilters}
             >
               <ReloadOutlined />
             </Button>
           )}
         </div>
       </ActionBar>
+
       <UMTable
-        columns={columns}
         loading={isLoading}
-        dataSource={departments}
+        columns={columns}
+        dataSource={buildings}
         pageSize={size}
         total={meta?.total}
         showSizeChanger={true}
         onPaginationChange={onPaginationChange}
         onTableChange={onTableChange}
         showPagination={true}
-      ></UMTable>
+      />
     </div>
   );
 };
 
-export default ManageDepartmentPage;
+export default ManageBuildingPage;

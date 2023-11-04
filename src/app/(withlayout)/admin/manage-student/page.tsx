@@ -1,23 +1,21 @@
 "use client";
 import ActionBar from "@/components/ui/ActionBar";
 import UMBreadCrumb from "@/components/ui/UMBreadCrumb";
-import { Button, Input, message } from "antd";
+import { Button, Input } from "antd";
 import Link from "next/link";
 import {
   DeleteOutlined,
   EditOutlined,
-  FilterOutlined,
   ReloadOutlined,
   EyeOutlined,
 } from "@ant-design/icons";
 import { useState } from "react";
 import { useDebounced } from "@/redux/hooks";
 import UMTable from "@/components/ui/UMTable";
-import { useAdminsQuery, useDeleteAdminMutation } from "@/redux/api/adminApi";
-import { IDepartment } from "@/types";
 import dayjs from "dayjs";
+import { useStudentsQuery } from "@/redux/api/studentApi";
 
-const AdminPage = () => {
+const StudentPage = () => {
   const query: Record<string, any> = {};
 
   const [page, setPage] = useState<number>(1);
@@ -39,31 +37,20 @@ const AdminPage = () => {
   if (!!debouncedSearchTerm) {
     query["searchTerm"] = debouncedSearchTerm;
   }
-  const { data, isLoading } = useAdminsQuery({ ...query });
+  const { data, isLoading } = useStudentsQuery({ ...query });
 
-  const admins = data?.admins;
+  const students = data?.students;
   const meta = data?.meta;
-  const [deleteAdmin] = useDeleteAdminMutation();
-  const deleteHandler = async (id: string) => {
-    console.log(id);
-    message.loading("Deleting.....");
-    try {
-      const res = await deleteAdmin(id);
-      console.log(res);
-      message.success("Admin Delete Successfully");
-    } catch (err: any) {
-      message.error(err.message);
-    }
-  };
+  // console.log(students);
+
   const columns = [
     {
       title: "Id",
-      dataIndex: "id",
+      dataIndex: "studentId",
       sorter: true,
     },
     {
       title: "Name",
-      dataIndex: "name",
       render: function (data: Record<string, string>) {
         const fullName = `${data?.firstName} ${data?.middleName} ${data?.lastName}`;
         return <>{fullName}</>;
@@ -72,17 +59,6 @@ const AdminPage = () => {
     {
       title: "Email",
       dataIndex: "email",
-    },
-    {
-      title: "Department",
-      dataIndex: "managementDepartment",
-      render: function (data: IDepartment) {
-        return <>{data?.title}</>;
-      },
-    },
-    {
-      title: "Designation",
-      dataIndex: "designation",
     },
     {
       title: "Created at",
@@ -97,27 +73,33 @@ const AdminPage = () => {
       dataIndex: "contactNo",
     },
     {
+      title: "Gender",
+      dataIndex: "gender",
+      sorter: true,
+    },
+    {
       title: "Action",
       dataIndex: "id",
       render: function (data: any) {
         return (
           <>
-            <Link href={`/super_admin/admin/details/${data.id}`}>
+            <Link href={`/admin/manage-faculty/details/${data.id}`}>
               <Button onClick={() => console.log(data)} type="primary">
                 <EyeOutlined />
               </Button>
             </Link>
-            <Link href={`/super_admin/admin/edit/${data}`}>
+            <Link href={`/admin/manage-faculty/edit/${data.id}`}>
               <Button
                 style={{
                   margin: "0px 5px",
                 }}
+                onClick={() => console.log(data)}
                 type="primary"
               >
                 <EditOutlined />
               </Button>
             </Link>
-            <Button onClick={() => deleteHandler(data)} type="primary" danger>
+            <Button onClick={() => console.log(data)} type="primary" danger>
               <DeleteOutlined />
             </Button>
           </>
@@ -147,12 +129,12 @@ const AdminPage = () => {
       <UMBreadCrumb
         items={[
           {
-            label: "super_admin",
-            link: "/super_admin",
+            label: "admin",
+            link: "/admin",
           },
         ]}
       />
-      <ActionBar title="Admin List">
+      <ActionBar title="">
         <Input
           size="large"
           placeholder="Search"
@@ -162,8 +144,8 @@ const AdminPage = () => {
           }}
         />
         <div>
-          <Link href="/super_admin/admin/create">
-            <Button type="primary">Create Admin</Button>
+          <Link href="/admin/manage-student/create">
+            <Button type="primary">Create</Button>
           </Link>
           {(!!sortBy || !!sortOrder || !!searchTerm) && (
             <Button
@@ -180,7 +162,7 @@ const AdminPage = () => {
       <UMTable
         loading={isLoading}
         columns={columns}
-        dataSource={admins}
+        dataSource={students}
         pageSize={size}
         total={meta?.total}
         showSizeChanger={true}
@@ -192,4 +174,4 @@ const AdminPage = () => {
   );
 };
 
-export default AdminPage;
+export default StudentPage;
