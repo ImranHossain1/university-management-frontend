@@ -15,6 +15,7 @@ const CreateBuildPage = () => {
       if (res?.id) {
         message.success("Building added successfully");
       }
+    
     } catch (err: any) {
       console.error(err.message);
       message.error(err.message);
