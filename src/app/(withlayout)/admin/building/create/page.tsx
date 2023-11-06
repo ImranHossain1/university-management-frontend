@@ -11,11 +11,9 @@ const CreateBuildPage = () => {
     message.loading("Creating.....");
     try {
       const res = await addBuilding(data).unwrap();
-      // console.log(res);
       if (res?.id) {
         message.success("Building added successfully");
       }
-    
     } catch (err: any) {
       console.error(err.message);
       message.error(err.message);

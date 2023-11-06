@@ -50,7 +50,6 @@ const ACSemesterPage = () => {
   const deleteHandler = async (id: string) => {
     message.loading("Deleting.....");
     try {
-      //   console.log(data);
       const res = await deleteAcademicSemester(id);
       if (!!res) {
         message.success("Academic Semester Deleted successfully");
@@ -127,7 +126,6 @@ const ACSemesterPage = () => {
   };
   const onTableChange = (pagination: any, filter: any, sorter: any) => {
     const { order, field } = sorter;
-    // console.log(order, field);
     setSortBy(field as string);
     setSortOrder(order === "ascend" ? "asc" : "desc");
   };

@@ -39,7 +39,6 @@ const ManageDepartmentPage = () => {
   const departments = data?.departments;
   const meta = data?.meta;
   const [deleteDepartment] = useDeleteDepartmentMutation();
-  console.log(departments);
   const deleteHandler = async (id: string) => {
     message.loading("Deleting.....");
     try {

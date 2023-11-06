@@ -35,11 +35,9 @@ const CreateACSemesterPage = () => {
 
     data.year = parseInt(data.year);
 
-    // console.log(data);
-
     message.loading("Creating.....");
     try {
-      const res = addAcademicSemester(data);
+      const res = addAcademicSemester(data).unwrap();
       if (!!res) {
         message.success("Academic Semester Created successfully");
         router.push("/admin/academic/semester");

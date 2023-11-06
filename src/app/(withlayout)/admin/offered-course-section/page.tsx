@@ -6,18 +6,21 @@ import {
 } from "@ant-design/icons";
 import UMBreadCrumb from "@/components/ui/UMBreadCrumb";
 import UMTable from "@/components/ui/UMTable";
+
 import { Button, Input, message } from "antd";
 import Link from "next/link";
 import { useState } from "react";
 import ActionBar from "@/components/ui/ActionBar";
 import { useDebounced } from "@/redux/hooks";
 import dayjs from "dayjs";
-import {
-  useBuildingsQuery,
-  useDeleteBuildingMutation,
-} from "@/redux/api/buildingApi";
 
-const ManageBuildingPage = () => {
+import {
+  useDeleteOfferedCourseMutation,
+  useOfferedCoursesQuery,
+} from "@/redux/api/offeredCourseApi";
+import { useOfferedCourseSectionsQuery } from "@/redux/api/offeredCourseSectionApi";
+
+const OfferedCourseSectionPage = () => {
   const query: Record<string, any> = {};
 
   const [page, setPage] = useState<number>(1);
@@ -25,7 +28,7 @@ const ManageBuildingPage = () => {
   const [sortBy, setSortBy] = useState<string>("");
   const [sortOrder, setSortOrder] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [deleteBuilding] = useDeleteBuildingMutation();
+  const [deleteOfferedCourse] = useDeleteOfferedCourseMutation();
 
   query["limit"] = size;
   query["page"] = page;
@@ -41,17 +44,19 @@ const ManageBuildingPage = () => {
   if (!!debouncedTerm) {
     query["searchTerm"] = debouncedTerm;
   }
-  const { data, isLoading } = useBuildingsQuery({ ...query });
+  const { data, isLoading } = useOfferedCourseSectionsQuery({ ...query });
 
-  const buildings = data?.buildings;
+  const offeredCourseSections = data?.offeredCourseSections;
   const meta = data?.meta;
 
   const deleteHandler = async (id: string) => {
     message.loading("Deleting.....");
     try {
       //   console.log(data);
-      await deleteBuilding(id);
-      message.success("Building Deleted successfully");
+      const res = await deleteOfferedCourse(id);
+      if (res) {
+        message.success("Course section deleted successfully");
+      }
     } catch (err: any) {
       //   console.error(err.message);
       message.error(err.message);
@@ -60,8 +65,27 @@ const ManageBuildingPage = () => {
 
   const columns = [
     {
-      title: "Title",
+      title: "Offered courses",
+      dataIndex: "offeredCourse",
+      sorter: true,
+      render: function (data: any) {
+        return <>{data?.course?.title}</>;
+      },
+    },
+    {
+      title: "Section",
       dataIndex: "title",
+      sorter: true,
+    },
+    {
+      title: "max capacity",
+      dataIndex: "maxCapacity",
+      sorter: true,
+    },
+    {
+      title: "Currently enrolled Student",
+      dataIndex: "currentlyEnrolledStudent",
+      sorter: true,
     },
     {
       title: "CreatedAt",
@@ -76,7 +100,7 @@ const ManageBuildingPage = () => {
       render: function (data: any) {
         return (
           <>
-            <Link href={`/admin/building/edit/${data?.id}`}>
+            <Link href={`/admin/offered-course/edit/${data?.id}`}>
               <Button
                 style={{
                   margin: "0px 5px",
@@ -101,11 +125,13 @@ const ManageBuildingPage = () => {
   ];
 
   const onPaginationChange = (page: number, pageSize: number) => {
+    console.log("Page:", page, "PageSize:", pageSize);
     setPage(page);
     setSize(pageSize);
   };
   const onTableChange = (pagination: any, filter: any, sorter: any) => {
     const { order, field } = sorter;
+    // console.log(order, field);
     setSortBy(field as string);
     setSortOrder(order === "ascend" ? "asc" : "desc");
   };
@@ -127,7 +153,7 @@ const ManageBuildingPage = () => {
         ]}
       />
 
-      <ActionBar title="Building List">
+      <ActionBar title="Course Section List">
         <Input
           type="text"
           size="large"
@@ -140,7 +166,7 @@ const ManageBuildingPage = () => {
           }}
         />
         <div>
-          <Link href="/admin/building/create">
+          <Link href="/admin/offered-course-section/create">
             <Button type="primary">Create</Button>
           </Link>
           {(!!sortBy || !!sortOrder || !!searchTerm) && (
@@ -158,7 +184,7 @@ const ManageBuildingPage = () => {
       <UMTable
         loading={isLoading}
         columns={columns}
-        dataSource={buildings}
+        dataSource={offeredCourseSections}
         pageSize={size}
         total={meta?.total}
         showSizeChanger={true}
@@ -170,4 +196,4 @@ const ManageBuildingPage = () => {
   );
 };
 
-export default ManageBuildingPage;
+export default OfferedCourseSectionPage;

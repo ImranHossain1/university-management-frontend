@@ -33,7 +33,6 @@ const CreateACDepartmentPage = () => {
   const onSubmit = async (data: any) => {
     message.loading("Creating.....");
     try {
-      console.log(data);
       const res = await addAcademicDepartment(data);
       if (!!res) {
         message.success("AC Department added successfully");
