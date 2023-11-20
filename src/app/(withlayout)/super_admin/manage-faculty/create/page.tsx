@@ -1,5 +1,7 @@
 "use client";
 
+import ACDepartmentField from "@/components/Forms/ACDepartmentField";
+import ACFacultyField from "@/components/Forms/ACFacultyField";
 import Form from "@/components/Forms/Form";
 import FormDatePicker from "@/components/Forms/FormDatePicker";
 import FormInput from "@/components/Forms/FormInput";
@@ -7,20 +9,29 @@ import FormSelectField from "@/components/Forms/FormSelectField";
 import FormTextArea from "@/components/Forms/FormTextArea";
 import UMBreadCrumb from "@/components/ui/UMBreadCrumb";
 import UploadImage from "@/components/ui/UploadImage";
-import {
-  acDepartmentOptions,
-  bloodGroupOptions,
-  facultyOptions,
-  genderOptions,
-} from "@/constants/global";
-import { facultySchema } from "@/schemas/faculty";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { Button, Col, Row } from "antd";
+import { bloodGroupOptions, genderOptions } from "@/constants/global";
+import { useAddFacultyWithFormDataMutation } from "@/redux/api/facultyApi";
+import { Button, Col, Row, message } from "antd";
+import { useRouter } from "next/navigation";
 
 const CreateFacultyPage = () => {
-  const adminOnSubmit = async (data: any) => {
+  const [addFacultyWithFormData] = useAddFacultyWithFormDataMutation();
+  const router = useRouter();
+  const adminOnSubmit = async (values: any) => {
+    const obj = { ...values };
+    const file = obj["file"];
+    delete obj["file"];
+    const data = JSON.stringify(obj);
+    const formData = new FormData();
+    formData.append("file", file as Blob);
+    formData.append("data", data);
+    message.loading("Creating...");
     try {
-      console.log(data);
+      const res = await addFacultyWithFormData(formData);
+      if (!!res) {
+        message.success("Faculty created successfully!");
+        router.push("/admin/manage-faculty");
+      }
     } catch (err: any) {
       console.error(err.message);
     }
@@ -36,7 +47,7 @@ const CreateFacultyPage = () => {
         ]}
       />
       <h1>Create Faculty</h1>
-      <Form submitHandler={adminOnSubmit} resolver={yupResolver(facultySchema)}>
+      <Form submitHandler={adminOnSubmit}>
         {/* faculty information */}
         <div
           style={{
@@ -92,22 +103,20 @@ const CreateFacultyPage = () => {
             </Col>
 
             <Col span={8} style={{ margin: "10px 0" }}>
-              <FormSelectField
+              <ACFacultyField
                 name="faculty.academicFaculty"
                 label="Academic Faculty"
-                options={facultyOptions}
               />
             </Col>
             <Col span={8} style={{ margin: "10px 0" }}>
-              <FormSelectField
+              <ACDepartmentField
                 name="faculty.academicDepartment"
                 label="Academic Department"
-                options={acDepartmentOptions}
               />
             </Col>
 
             <Col span={8} style={{ margin: "10px 0" }}>
-              {/* <UploadImage /> */}
+              <UploadImage name="file" />
             </Col>
           </Row>
         </div>

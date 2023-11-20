@@ -16,6 +16,7 @@ import UMTable from "@/components/ui/UMTable";
 import { useAdminsQuery, useDeleteAdminMutation } from "@/redux/api/adminApi";
 import { IDepartment } from "@/types";
 import dayjs from "dayjs";
+import UMModal from "@/components/ui/UMModal";
 
 const AdminPage = () => {
   const query: Record<string, any> = {};
@@ -25,7 +26,8 @@ const AdminPage = () => {
   const [sortBy, setSortBy] = useState<string>("");
   const [sortOrder, setSortOrder] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState<string>("");
-
+  const [open, setOpen] = useState<boolean>(false);
+  const [adminId, setAdminId] = useState<string>("");
   query["limit"] = size;
   query["page"] = page;
   query["sortBy"] = sortBy;
@@ -46,13 +48,14 @@ const AdminPage = () => {
   const [deleteAdmin] = useDeleteAdminMutation();
   const deleteHandler = async (id: string) => {
     console.log(id);
-    message.loading("Deleting.....");
     try {
       const res = await deleteAdmin(id);
-      console.log(res);
-      message.success("Admin Delete Successfully");
-    } catch (err: any) {
-      message.error(err.message);
+      if (res) {
+        message.success("admin Successfully Deleted");
+      }
+      setOpen(false);
+    } catch (error: any) {
+      message.error(error.message);
     }
   };
   const columns = [
@@ -117,7 +120,14 @@ const AdminPage = () => {
                 <EditOutlined />
               </Button>
             </Link>
-            <Button onClick={() => deleteHandler(data)} type="primary" danger>
+            <Button
+              onClick={() => {
+                setOpen(true);
+                setAdminId(data);
+              }}
+              type="primary"
+              danger
+            >
               <DeleteOutlined />
             </Button>
           </>
@@ -188,6 +198,14 @@ const AdminPage = () => {
         onTableChange={onTableChange}
         showPagination={true}
       />
+      <UMModal
+        title="Remove Admin"
+        isOpen={open}
+        closeModal={() => setOpen(false)}
+        handleOk={() => deleteHandler(adminId)}
+      >
+        <p className="my-5">Do you want to remove this admin?</p>
+      </UMModal>
     </div>
   );
 };

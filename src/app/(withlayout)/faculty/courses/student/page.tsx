@@ -2,21 +2,17 @@
 import ActionBar from "@/components/ui/ActionBar";
 import UMBreadCrumb from "@/components/ui/UMBreadCrumb";
 import { Button, Input } from "antd";
-import Link from "next/link";
-import {
-  DeleteOutlined,
-  EditOutlined,
-  ReloadOutlined,
-  EyeOutlined,
-} from "@ant-design/icons";
+import { ReloadOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import { useDebounced } from "@/redux/hooks";
 import UMTable from "@/components/ui/UMTable";
-import dayjs from "dayjs";
-import { useStudentsQuery } from "@/redux/api/studentApi";
 
-const StudentPage = () => {
-  const query: Record<string, any> = {};
+import { useFacultyCourseStudentsQuery } from "@/redux/api/facultyApi";
+import Link from "next/link";
+
+const FacultyCoursesStudentsPage = ({ searchParams }: any) => {
+  const { courseId, offeredCourseSectionId } = searchParams;
+  const query: any = {};
 
   const [page, setPage] = useState<number>(1);
   const [size, setSize] = useState<number>(10);
@@ -29,6 +25,13 @@ const StudentPage = () => {
   query["sortBy"] = sortBy;
   query["sortOrder"] = sortOrder;
 
+  if (!!courseId) {
+    query["courseId"] = courseId;
+  }
+  if (!!offeredCourseSectionId) {
+    query["offeredCourseSectionId"] = offeredCourseSectionId;
+  }
+
   const debouncedSearchTerm = useDebounced({
     searchQuery: searchTerm,
     delay: 600,
@@ -37,72 +40,48 @@ const StudentPage = () => {
   if (!!debouncedSearchTerm) {
     query["searchTerm"] = debouncedSearchTerm;
   }
-  const { data, isLoading } = useStudentsQuery({ ...query });
+  const { data, isLoading } = useFacultyCourseStudentsQuery({ ...query });
 
-  const students = data?.students;
+  const myCourseStudents = data?.myCourseStudents;
   const meta = data?.meta;
-  // console.log(students);
 
   const columns = [
     {
-      title: "Id",
-      dataIndex: "studentId",
-      sorter: true,
+      title: "Student Name",
+      render: function (data: any) {
+        return (
+          <>
+            {data?.firstName}
+            {data?.middleName}
+            {data?.LastName}
+          </>
+        );
+      },
     },
     {
-      title: "Name",
-      render: function (data: Record<string, string>) {
-        const fullName = `${data?.firstName} ${data?.middleName} ${data?.lastName}`;
-        return <>{fullName}</>;
-      },
+      title: "Student ID",
+      dataIndex: "studentId",
     },
     {
       title: "Email",
       dataIndex: "email",
     },
     {
-      title: "Created at",
-      dataIndex: "createdAt",
-      render: function (data: any) {
-        return data && dayjs(data).format("MMM D, YYYY hh:mm A");
-      },
-      sorter: true,
-    },
-    {
-      title: "Contact no.",
+      title: "Contact No",
       dataIndex: "contactNo",
     },
-    {
-      title: "Gender",
-      dataIndex: "gender",
-      sorter: true,
-    },
+
     {
       title: "Action",
-      dataIndex: "id",
       render: function (data: any) {
         return (
-          <>
-            <Link href={`/super_admin/manage-faculty/details/${data.id}`}>
-              <Button onClick={() => console.log(data)} type="primary">
-                <EyeOutlined />
-              </Button>
+          <div key="1" style={{ margin: "20px 0px" }}>
+            <Link
+              href={`/faculty/student-result?studentId=${data.id}&courseId=${courseId}&offeredCourseSectionId=${offeredCourseSectionId}`}
+            >
+              <Button type="primary">View Marks</Button>
             </Link>
-            <Link href={`/super_admin/manage-faculty/edit/${data.id}`}>
-              <Button
-                style={{
-                  margin: "0px 5px",
-                }}
-                onClick={() => console.log(data)}
-                type="primary"
-              >
-                <EditOutlined />
-              </Button>
-            </Link>
-            <Button onClick={() => console.log(data)} type="primary" danger>
-              <DeleteOutlined />
-            </Button>
-          </>
+          </div>
         );
       },
     },
@@ -129,12 +108,16 @@ const StudentPage = () => {
       <UMBreadCrumb
         items={[
           {
-            label: "super_admin",
-            link: "/super_admin",
+            label: "faculty",
+            link: "/faculty",
+          },
+          {
+            label: "courses",
+            link: "/faculty/courses",
           },
         ]}
       />
-      <ActionBar title="">
+      <ActionBar title="My Course Students">
         <Input
           size="large"
           placeholder="Search"
@@ -144,9 +127,6 @@ const StudentPage = () => {
           }}
         />
         <div>
-          <Link href="/super_admin/manage-student/create">
-            <Button type="primary">Create</Button>
-          </Link>
           {(!!sortBy || !!sortOrder || !!searchTerm) && (
             <Button
               style={{ margin: "0px 5px" }}
@@ -162,7 +142,7 @@ const StudentPage = () => {
       <UMTable
         loading={isLoading}
         columns={columns}
-        dataSource={students}
+        dataSource={myCourseStudents}
         pageSize={size}
         total={meta?.total}
         showSizeChanger={true}
@@ -174,4 +154,4 @@ const StudentPage = () => {
   );
 };
 
-export default StudentPage;
+export default FacultyCoursesStudentsPage;
