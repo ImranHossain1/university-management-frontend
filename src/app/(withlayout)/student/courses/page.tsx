@@ -21,7 +21,7 @@ const StudentCoursesPage = () => {
   query["sortOrder"] = sortOrder;
 
   const { data, isLoading } = useMyCoursesQuery({ ...query });
-
+  console.log(data);
   const myCourses = data?.myCourses;
   const meta = data?.meta;
 

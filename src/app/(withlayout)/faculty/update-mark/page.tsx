@@ -6,7 +6,7 @@ import UMBreadCrumb from "@/components/ui/UMBreadCrumb";
 import { useUpdateMarksMutation } from "@/redux/api/studentEnrollCourseMarkApi";
 import { Button, Col, Row, message } from "antd";
 
-const UpdateMarksPage = ({ searchParams }: Record<string, any>) => {
+const UpdateMarksPage = ({ searchParams }: any) => {
   const {
     examType,
     marks,

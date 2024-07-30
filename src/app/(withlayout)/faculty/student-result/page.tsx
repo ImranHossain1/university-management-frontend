@@ -22,11 +22,11 @@ import {
 } from "@/redux/api/studentEnrollCourseMarkApi";
 import { IStudentEnrolledCourseMark } from "@/types";
 
-const StudentResultPage = ({ searchParams }: Record<string, any>) => {
+const StudentResultPage = ({ searchParams }: any) => {
   const [updateFinalMarks] = useUpdateFinalMarksMutation();
   const [academicSemesterId, setAcademicSemesterId] = useState<string>();
 
-  const query: Record<string, any> = {};
+  const query: any = {};
 
   const { studentId, courseId, offeredCourseSectionId } = searchParams;
 
