@@ -2,7 +2,7 @@
 
 Welcome to the University Management Frontend! This project provides a range of features to manage travel-related operations. Below are the key features:
 
-### Forntend github : https://github.com/ImranHossain1/highway-hoppers-frontend
+### Forntend github : https://github.com/ImranHossain1/university-management-frontend
 
 ### Auth Service github: https://github.com/ImranHossain1/university-management-auth-service
 
